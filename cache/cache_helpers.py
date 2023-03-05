@@ -5,6 +5,7 @@ import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from nameinternal import Card, Relic
     from runs import RunParser
 
 class Statistic:
@@ -23,7 +24,7 @@ class Statistic:
 
     @property
     def is_loaded(self) -> bool:
-        return self.all_character_count is not None and self.ironclad_count is not None and self.silent_count is not None and self.defect_count is not None and self.watcher_count is not None 
+        return self.all_character_count is not None and self.ironclad_count is not None and self.silent_count is not None and self.defect_count is not None and self.watcher_count is not None
 
 class RunStats:
     def __init__(self):
@@ -32,7 +33,7 @@ class RunStats:
         self.all_losses = Statistic(set_default=True)
         self.year_wins: dict[int, Statistic] = {
             self.current_year: Statistic(set_default=True)
-        } 
+        }
         self.year_losses: dict[int, Statistic] = {
             self.current_year: Statistic(set_default=True)
         }
@@ -47,7 +48,7 @@ class RunStats:
 
         self._increment_stat(self.all_wins, char)
         self._increment_stat(self.year_wins[date.year], char)
-        
+
     def add_loss(self, char: str, run_date: datetime):
         date = run_date.date()
         if not date.year in self.year_losses:
@@ -111,7 +112,20 @@ class RunLinkedListNode:
 
 class MasteryStats:
     def __init__(self) -> None:
-        self.mastered_cards: dict[str, RunParser] = {}
-        self.mastered_relics: dict[str, RunParser] = {}
-        self.colors: dict[str, str] = {}
+        self.mastered_cards: dict[Card, RunParser] = {}
+        self.mastered_relics: dict[Relic, RunParser] = {}
         self.last_run_timestamp: datetime.datetime = None
+
+class MasteryCounts:
+    def __init__(self, character: str, mastered: list[Card | Relic], unmastered: list[Card | Relic]) -> None:
+        self.character = character
+        self.mastered = mastered
+        self.unmastered = unmastered
+
+    @property
+    def mastered_count(self):
+        return len(self.mastered)
+
+    @property
+    def total_count(self):
+        return self.mastered_count + len(self.unmastered)

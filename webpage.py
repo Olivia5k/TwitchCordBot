@@ -116,6 +116,26 @@ async def challenge(req: web.Request):
         "stream_days_left": stream_days_left,
     }
 
+@router.get("/mastery")
+@aiohttp_jinja2.template("mastery.jinja2")
+async def mastery(req: web.Request):
+    # TODO(olivia): Faely, I'm sorry for function local imports. You can
+    # probably make better sense of it than I can.
+    from cache.mastered import get_mastery_counts
+
+    mastered = get_mastery_counts()
+    import pprint
+    # pprint.pprint(mastered.mastered_relics)
+
+    ret = {
+        "amount": sum(x.mastered_count for x in mastered),
+        "total": sum(x.total_count for x in mastered),
+        "characters": [x for x in mastered if x.character in ("Ironclad", "Silent", "Defect", "Watcher")],
+        "categories": [x for x in mastered if x.character in ("Colorless", "Curse", "Relics")],
+    }
+    pprint.pprint(ret)
+    return ret
+
 @router.get("/discord")
 @aiohttp_jinja2.template("socials/discord.jinja2")
 async def discord(req: web.Request):
